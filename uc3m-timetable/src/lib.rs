@@ -4,30 +4,36 @@ use chrono::{DateTime, Utc};
 use chrono_tz::Tz;
 use reqwest::{Response, Url};
 use scraper::Html;
+use std::borrow::Cow;
+use std::collections::HashMap;
 use std::convert::Into;
 use std::error::Error;
+use std::fmt::{Display, Formatter};
+use std::result::Result as StdResult;
+use std::str::FromStr;
 
 pub mod ical;
 mod parse;
 pub(crate) mod util;
 
 // todo: replace by proper error type.
-/// A [`Result`](std::result::Result) alias where the
+/// A [`Result`](StdResult) alias where the
 /// [`Err`] case is [`Box<dyn std::error::Error>`].
-pub type Result<T> = std::result::Result<T, Box<dyn Error>>;
+pub type Result<T> = StdResult<T, Box<dyn Error>>;
 
 /// The time zone of the UC3M university.
 pub const UC3M_TIMEZONE: Tz = chrono_tz::Europe::Madrid;
+static UC3M_TIMETABLE_DOMAIN: &str = "aplicaciones.uc3m.es";
 
 /// Identifies a timetable.
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub struct TimetableId {
-    year: i32,
-    plan: u16,
-    center: u8,
-    grade: u8,
-    group: u16,
-    period: u8,
+    pub year: i32,
+    pub plan: u16,
+    pub center: u8,
+    pub grade: u8,
+    pub group: u16,
+    pub period: u8,
     time_zone: Tz,
 }
 
@@ -56,8 +62,8 @@ impl TimetableId {
     /// Returns the [`Url`] where the timetable is located.
     pub fn url(&self) -> Url {
         let url = format!(
-            "https://aplicaciones.uc3m.es/horarios-web/publicacion/{}/porCentroPlanCursoGrupo.tt",
-            self.year
+            "https://{}/horarios-web/publicacion/{}/porCentroPlanCursoGrupo.tt",
+            UC3M_TIMETABLE_DOMAIN, self.year
         );
         let params = [
             ("plan", self.plan.to_string()),
@@ -68,6 +74,90 @@ impl TimetableId {
             ("valorPer", self.period.to_string()),
         ];
         Url::parse_with_params(&url, &params).expect("invalid timetable url")
+    }
+}
+
+/// An error that can occur while parsing the [`Url`] of
+/// a [`TimetableId`].
+#[derive(Debug)]
+pub enum TimetableUrlParseError {
+    MissingDomain,
+    IncorrectDomain,
+    CannotBeABaseUrl,
+    MissingYearSegment,
+    InvalidYearSegment(std::num::ParseIntError),
+    MissingQueryParam(&'static str),
+    InvalidQueryParam(&'static str),
+}
+
+impl Display for TimetableUrlParseError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match *self {
+            Self::MissingQueryParam(name) => write!(f, "missing query param `{}`", name),
+            Self::InvalidQueryParam(name) => write!(f, "invalid query param `{}`", name),
+            _ => write!(
+                f,
+                "{}",
+                match *self {
+                    Self::MissingDomain => "url is missing domain",
+                    Self::IncorrectDomain => "incorrect timetable domain",
+                    Self::CannotBeABaseUrl => "cannot parse cannot-be-a-base url",
+                    Self::MissingYearSegment => "url is missing year segment",
+                    Self::InvalidYearSegment(_) => "cannot parse non-numeric year segment",
+                    _ => unreachable!(),
+                }
+            ),
+        }
+    }
+}
+
+impl Error for TimetableUrlParseError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        match self {
+            Self::InvalidYearSegment(err) => Some(err),
+            _ => None,
+        }
+    }
+}
+
+impl TryFrom<Url> for TimetableId {
+    type Error = TimetableUrlParseError;
+
+    fn try_from(url: Url) -> StdResult<Self, Self::Error> {
+        if url.domain().ok_or(TimetableUrlParseError::MissingDomain)? != UC3M_TIMETABLE_DOMAIN {
+            return Err(TimetableUrlParseError::IncorrectDomain);
+        }
+
+        let year = url
+            .path_segments()
+            .ok_or(TimetableUrlParseError::CannotBeABaseUrl)?
+            .skip(2)
+            .next()
+            .ok_or(TimetableUrlParseError::MissingYearSegment)?
+            .parse()
+            .map_err(|err| TimetableUrlParseError::InvalidYearSegment(err))?;
+        let query_params: HashMap<_, _> = url.query_pairs().into_iter().collect();
+
+        fn parse_query_param<F: FromStr>(
+            query_params: &HashMap<Cow<str>, Cow<str>>,
+            name: &'static str,
+        ) -> StdResult<F, TimetableUrlParseError> {
+            query_params
+                .get(name)
+                .ok_or_else(|| TimetableUrlParseError::MissingQueryParam(name))?
+                .parse()
+                .map_err(|_| TimetableUrlParseError::InvalidQueryParam(name))
+        }
+
+        Ok(TimetableId::new(
+            year,
+            parse_query_param(&query_params, "plan")?,
+            parse_query_param(&query_params, "centro")?,
+            parse_query_param(&query_params, "curso")?,
+            parse_query_param(&query_params, "grupo")?,
+            parse_query_param(&query_params, "valorPer")?,
+            UC3M_TIMEZONE,
+        ))
     }
 }
 
@@ -138,11 +228,20 @@ async fn parse_response(mut response: Response) -> Result<Html> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{TimetableId, UC3M_TIMEZONE};
+    use crate::{TimetableId, Url, UC3M_TIMEZONE};
 
     #[test]
-    fn timetable_url() {
+    fn timetable_to_url() {
         let timetable = TimetableId::new(2022, 433, 2, 4, 121, 1, UC3M_TIMEZONE);
         assert_eq!(timetable.url().to_string(), "https://aplicaciones.uc3m.es/horarios-web/publicacion/2022/porCentroPlanCursoGrupo.tt?plan=433&centro=2&curso=4&grupo=121&tipoPer=C&valorPer=1");
+    }
+
+    #[test]
+    fn url_to_timetable() {
+        let url = Url::parse("https://aplicaciones.uc3m.es/horarios-web/publicacion/2022/porCentroPlanCursoGrupo.tt?plan=433&centro=2&curso=4&grupo=121&tipoPer=C&valorPer=1").unwrap();
+        assert_eq!(
+            TimetableId::try_from(url).unwrap(),
+            TimetableId::new(2022, 433, 2, 4, 121, 1, UC3M_TIMEZONE)
+        );
     }
 }

@@ -19,10 +19,10 @@ https://uc3m-timetable.hugmanrique.me/?year={year}&plan={plan}&center={center}&g
 An iCalendar object file (`.ics`) should have been downloaded. To import it in your application, create a new calendar
 and see the following guides:
 
-- [Google Calendar](https://support.google.com/calendar/answer/37118) -- step 2,
-- [Apple Calendar](https://support.apple.com/guide/calendar/import-or-export-calendars-icl1023/mac) -- "Import events into a calendar".
+- [Google Calendar](https://support.google.com/calendar/answer/37118) (follow step 2),
+- [Apple Calendar](https://support.apple.com/guide/calendar/import-or-export-calendars-icl1023/mac) (read the "Import events into a calendar" section).
 
-To update the timetable, download the iCalendar file, recreate the calendar, and import the file.
+To update the timetable, download the iCalendar file again, recreate the calendar, and import the file.
 
 ## Setup
 You'll need the following dependencies to build uc3m-timetable

@@ -23,8 +23,8 @@ pub async fn main(req: Request, env: Env, _ctx: Context) -> Result<Response> {
     set_panic_hook();
     Router::new()
         .get_async("/", |req, _ctx| async move {
-            let query_params = req.url()?;
-            let query_params: HashMap<_, _> = query_params.query_pairs().into_iter().collect();
+            let url = req.url()?;
+            let query_params: HashMap<_, _> = url.query_pairs().into_iter().collect();
             let id = TimetableId::new(
                 parse_query_param!(&query_params, "year"),
                 parse_query_param!(&query_params, "plan"),
@@ -43,6 +43,29 @@ pub async fn main(req: Request, env: Env, _ctx: Context) -> Result<Response> {
                     Ok(Response::ok(timetable.calendar().to_string())?.with_headers(headers))
                 }
                 Err(err) => Response::error(format!("cannot parse timetable: {}", err), 500),
+            }
+        })
+        .get("/from", move |req, _ctx| {
+            let url = req.url()?;
+            let query_params: HashMap<_, _> = url.query_pairs().into_iter().collect();
+
+            if let Some(timetable_url) = query_params.get("url") {
+                if let Ok(timetable_url) = Url::parse(timetable_url) {
+                    match TimetableId::try_from(timetable_url) {
+                        Ok(id) => {
+                            let redirect = format!(
+                                "/?year={}&plan={}&center={}&grade={}&group={}&period={}",
+                                id.year, id.plan, id.center, id.grade, id.group, id.period
+                            );
+                            Response::redirect(Url::parse(&redirect)?)
+                        }
+                        Err(err) => Response::error(format!("unknown timetable id: {}", err), 400),
+                    }
+                } else {
+                    Response::error("cannot parse timetable url", 400)
+                }
+            } else {
+                Response::error("missing `url` query parameter", 400)
             }
         })
         .run(req, env)
