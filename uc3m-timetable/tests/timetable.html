@@ -1,0 +1,603 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <title>Horario</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <link href="//aplicaciones.uc3m.es/web/css/adysaplicaciones.css" type="text/css" rel="stylesheet">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+    <style>
+        div.tituloHorario
+{
+	margin-left: 10px;
+	margin-right: 10px;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-top: 4px;
+	padding-top: 4px;
+	background-color: #FFFFEE;
+	color: #555588;
+	font-family: Arial;
+	font-size: 11pt;
+	font-weight: bold;
+	text-align: left;
+	width: 97%;
+	border: 3px outset navy;
+}
+
+div.contenedorHorarios
+{
+	border: 2px outset #777700;
+	margin: 5px;
+	width: 98%;
+}
+
+table.timetable {
+	border: none;
+	width: 100%;
+}
+
+table.timetable th.esquinaVacia {
+	border: none;
+	width: 1%;
+	background-color: transparent;
+}
+
+table.timetable th.cabeceraDia {
+	padding-left: 5px;
+	padding-right: 5px;
+	height: 40px;
+	width: 15%;
+	font-weight: bold;
+	text-align: center;
+	background-color: #ffeeaf;
+	border: 1px outset gray;
+	border-right: 2px outset gray;
+}
+
+table.timetable th.cabeceraHora {
+	width: 1%;
+	padding-left: 2px;
+	padding-right: 2px;
+	font-family: Arial;
+	font-size: 8pt;
+	font-weight: bold;
+	min-height: 10px;
+	text-align: center;
+	background-color: #eeeefe;
+}
+
+table.timetable td {
+	padding: 2px;
+	border: none;
+	border-bottom: 1px dotted #aeaeae;
+	border-left: 1px dotted #aeaeae;
+	background-color: #ffffee;
+}
+
+/* Tabla que alberga el tipo de sesion y los iconos de info, modif. y borrado */
+table.tblTipoCtrl
+{
+	background-color: transparent;
+	border: none;
+}
+
+table.tblTipoCtrl td.txtTipoSesion
+{
+	background-color: transparent;
+	border: none;
+	text-align: left;
+	font-family: Arial;
+	font-size: 9pt;
+	font-weight: bold;
+	text-transform: uppercase;
+	color: black;
+}
+
+table.tblTipoCtrl td.ctrlReserva
+{
+	background-color: transparent;
+	border: none;
+	width: 10%;
+	white-space: nowrap;
+	text-align: right;
+}
+
+/* Div que contiene las fechas de cada sesion */
+div.fechasSesion
+{
+	text-align: left;
+	margin-top: 5px;
+	font-size: 0.8em;
+}
+
+div.fechasSesion .fechas
+{
+	font-family: Verdana;
+	font-size: 0.8em;
+	font-weight: bold;
+	text-align: left;
+	color: blue;
+}
+
+div.fechasSesion .aulas
+{
+	padding-left: 3px;
+	font-family: Verdana;
+	font-size: 0.8em;
+	color: navy;
+	font-family: Arial;
+}
+
+/* Celdas de una sesión */
+table.timetable td.celdaConSesion {
+	vertical-align: top;
+	border: 1px outset navy;
+	line-height: 1em;
+	/*width: 60px;*/
+}
+
+/* Este estilo es para las celdas al final de un día (verticalmente linda con el dia siguiente */
+table.timetable td.limitrofeDia
+{
+	border-right: 2px outset gray;
+}
+
+
+table.timetable td.reservaInmutable {
+	background-color: #ffaaaa;
+	color: #660000;
+}
+
+
+/* Celdas de asignaturas de master oficial */
+table.timetable td.masterOficial
+{
+	background-color: #FFCC33;
+}
+/* Celdas de asignaturas troncales, obligatorias y básicas */
+table.timetable td.tipoAsignaturaT,
+table.timetable td.tipoAsignaturaO,
+table.timetable td.tipoAsignaturaB,
+.tipoAsignaturaT, .tipoAsignaturaO, .tipoAsignaturaB {
+	background-color: #ddffdd;
+}
+
+/* Celdas de asignaturas optativas */
+table.timetable td.tipoAsignaturaP, .tipoAsignaturaP {
+	background-color: #ffffde;
+}
+
+/* Celdas de asignaturas complemento de formación */
+table.timetable td.tipoAsignaturaR, .tipoAsignaturaR {
+	background-color: #eeeece;
+}
+
+
+/* Celdas de sesiones de examen */
+table.timetable td.examen {
+	background-color: #ffdddd;
+}
+
+/* Celdas de sesiones de agrupacion */
+table.timetable td.agrupacion {
+	background-color: #aaddff;
+}
+
+/* Celdas de sesiones de agrupacion magistral*/
+table.timetable td.agrmagistral {
+	background-color: #ffbb88;
+}
+
+/* Celdas de sesiones de subgrupo */
+table.timetable td.subgrupo {
+	background-color: #9fadcd;
+}
+
+/* Celdas de sesiones de tcs */
+table.timetable td.estudioPropio {
+	background-color: #FF99FF;
+}
+
+/* Celdas de sesiones no docentes */
+table.timetable td.nodocente {
+	background-color: #9fadcd;
+}
+
+/* Estilos para el detalle de las reservas de grupo */
+.nombreAsignatura
+{
+	margin-top: 15px;
+	text-align: left;
+	color: black;
+	font-weight:bold;
+	font-size: 8pt;
+	font-family: Arial;
+}
+
+.cursoCuatr
+{
+	text-align: left;
+	color: #444444;
+	font-weight:normal;
+	font-style: italic;
+	font-size: 7pt;
+	font-family: Arial;
+}
+
+/* Estilos para el detalle de las reservas de agrupacion */
+.nombreAgrupacion
+{
+	margin-top: 15px;
+	text-align: left;
+	color: black;
+	font-weight:bold;
+	font-size: 8pt;
+	font-family: Arial;
+}
+
+.descripcionAgrupacion
+{
+	text-align: left;
+	color: #444444;
+	font-weight:normal;
+	font-style: italic;
+	font-size: 7pt;
+	font-family: Arial;
+}
+
+.descripcionPrincipal
+{
+	margin-top: 5px;
+	margin-bottom: 5px;
+	padding-top: 5px;
+	text-align: left;
+	color: #444488;
+	font-size: 7pt;
+	font-weight: bold;
+	font-family: Arial;
+}
+
+.descripcionResto
+{
+	text-align: left;
+	color: #6666AA;
+	font-weight:normal;
+	font-style: italic;
+	font-size: 7pt;
+	font-family: Arial;
+}
+
+/* Estilos para el detalle de las reservas de agrupacion */
+.nombreSubgrupo
+{
+	margin-top: 15px;
+	text-align: left;
+	color: #880000;
+	font-weight:bold;
+	font-size: 8pt;
+	font-family: Arial;
+}
+
+/* Estilos para el detalle de las reservas de estudios propio */
+.nombreEstudioProp
+{
+	margin-top: 15px;
+	text-align: left;
+	color: navy;
+	font-weight:bold;
+	font-size: 9pt;
+	font-family: Arial;
+}
+
+.nombreParteDocente
+{
+	margin-top: 15px;
+	text-align: left;
+	color: blue;
+	font-weight:bold;
+	font-style: italic;
+	font-size: 8pt;
+	font-family: Arial;
+}
+
+/* Estilos para el detalle de las reservas puntuales */
+div.tituloRP
+{
+	margin-top: 15px;
+	color: yellow;
+	font-weight: bold;
+	font-size: 8pt;
+	font-family: Arial;
+	font-stretch: condensed;
+}
+
+div.detalleRP
+{
+	color: #FFFFEE;
+	font-size: 8pt;
+	font-family: Arial;
+	font-stretch: condensed;
+	height: 60px;
+	overflow: auto;
+}
+
+/* +++++++++++++++++++++++++++++++++++++++++
+    Sesiones agrupadas de magistral
+   +++++++++++++++++++++++++++++++++++++++++ */
+div.estudioMagistral
+{
+	font-size: 8pt; font-weight: bold; color: navy;
+}
+
+div.asignaturaMagistral
+{
+	font-size: 9pt; font-weight: bold; color: blue;
+}
+
+div.asignaturaMagistral span.listaGrupos
+{
+	font-size: 8pt; font-weight: normal; color: #224477;
+}
+
+div.asignaturaMagistral span.tipoEnsenyanza
+{
+	font-size: 9pt; font-weight: normal; color: black;
+}
+
+/* +++++++++++++++++++++++++++++++++++++++++
+    Sesiones agrupadas no magistrales
+   +++++++++++++++++++++++++++++++++++++++++ */
+div.estudioAgrupacion
+{
+	font-size: 8pt; font-weight: bold; color: navy;
+}
+
+div.asignaturaAgrupacion
+{
+	font-size: 8pt; font-weight: bold; color: blue;
+}
+
+div.asignaturaAgrupacionResto
+{
+	padding-left: 5px;
+	font-size: 7pt; font-weight: bold; color: #333377;
+}
+
+
+/* +++++++++++++++++++++++++++++++++++++++++
+    Sesiones agrupadas de grupo de matricula
+   +++++++++++++++++++++++++++++++++++++++++ */
+div.estudioGrupo
+{
+	font-size: 8pt; font-weight: bold; color: olive;
+}
+
+div.asignaturaGrupo
+{
+	font-size: 9pt; font-weight: bold; color: #338833;
+}
+
+    </style>
+    <style>
+      h2.subtitulo {
+        display: block;
+        font-size:1.2em;
+        border-bottom: 1px dashed #FFB600;
+        font-weight: bold;
+        color: #525252;
+        line-height: 1em;
+        background: #FFF;
+        margin: 1em 0.875em 1em 0.7em;
+        padding: 0.3em 0 0.3em 0;
+      }
+    </style>
+</head>
+<body>
+
+<!-- cabecera -->
+<header class="common-header-adys">
+    <span id="logoUC3M"></span><span id="nombreApp">HORARIOS &rarr; Curso 2022/2023, 1er. cuatrimestre, Escuela Politécnica Superior. (Leganés)</span>
+</header>
+
+<div id="cuerpo">
+    <h2 class="subtitulo">Grado en Matemática Aplicada y Computación, 4<sup>o</sup> curso, grupo 121</h2>
+    <div style="border: 2px outset #777700; margin: 5px; float:left; clear: both;" class="contenedorHorarios">
+        <table border="1" class="timetable" cellpadding="0" cellspacing="0">
+<thead>
+<tr>
+		<th class="esquinaVacia">&nbsp;</th>
+		<th class="cabeceraDia">LUNES</th>
+		<th class="cabeceraDia">MARTES</th>
+		<th class="cabeceraDia">MIERCOLES</th>
+		<th class="cabeceraDia">JUEVES</th>
+		<th class="cabeceraDia">VIERNES</th>
+		<th class="cabeceraDia">SABADO</th>
+</thead>
+<tbody>
+<tr>
+		<th class="cabeceraHora">15<sup>00</sup></th>
+	<td rowspan="8" class="celdaConSesion tipoAsignaturaO limitrofeDia"><div style="text-align: center; font-size: 8pt; font-weight: bold; color: #777777; background-color: #ffffff; border: 1px dotted black">MAGISTRAL</div><div class="estudioGrupo"> </div><div class="asignaturaGrupo">18281-ANÁLISIS FUNCIONAL APLICADO, grp.121&nbsp;&nbsp;<span class="cursoCuatr">4&ordm;,1<sup>er</sup>C</span><br><div style="float:none;clear:both;border-top: 1px dotted navy; width: 99%"></div>		<div style="font-size: 8pt; font-weight: bold;color: maroon">15:00 a 17:00</div>
+<div class="fechasSesion"><span class="fechas">05.sep-24.oct:</span><span class="aulas">Aula 7.1.J02</span><br><span class="fechas">07.nov-12.dic:</span><span class="aulas">Aula 7.1.J02</span><br></div>	</td>
+	<td rowspan="8" class="celdaConSesion tipoAsignaturaO limitrofeDia"><div class="estudioGrupo"> </div><div class="asignaturaGrupo">18281-ANÁLISIS FUNCIONAL APLICADO, grp.121&nbsp;&nbsp;<span class="cursoCuatr">4&ordm;,1<sup>er</sup>C</span><br><div style="float:none;clear:both;border-top: 1px dotted navy; width: 99%"></div>		<div style="font-size: 8pt; font-weight: bold;color: maroon">15:00 a 17:00</div>
+<div class="fechasSesion"><span class="fechas">06.sep-04.oct:</span><span class="aulas">Aula 7.1.J02</span><br><span class="fechas">18.oct-25.oct:</span><span class="aulas">Aula 7.1.J02</span><br><span class="fechas">08.nov-29.nov:</span><span class="aulas">Aula 7.1.J02</span><br><span class="fechas">13.dic:</span><span class="aulas">Aula 7.1.J02</span><br></div>	</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+</tr>
+<tr>
+		<th class="cabeceraHora">15<sup>15</sup></th>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+</tr>
+<tr>
+		<th class="cabeceraHora">15<sup>30</sup></th>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+</tr>
+<tr>
+		<th class="cabeceraHora">15<sup>45</sup></th>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+</tr>
+<tr>
+		<th class="cabeceraHora">16<sup>00</sup></th>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+</tr>
+<tr>
+		<th class="cabeceraHora">16<sup>15</sup></th>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+</tr>
+<tr>
+		<th class="cabeceraHora">16<sup>30</sup></th>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+</tr>
+<tr>
+		<th class="cabeceraHora">16<sup>45</sup></th>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+</tr>
+<tr>
+		<th class="cabeceraHora">17<sup>00</sup></th>
+	<td rowspan="8" class="celdaConSesion tipoAsignaturaO limitrofeDia"><div style="text-align: center; font-size: 8pt; font-weight: bold; color: #777777; background-color: #ffffff; border: 1px dotted black">MAGISTRAL</div><div class="estudioGrupo"> </div><div class="asignaturaGrupo">18283-PROGRAMACIÓN FUNCIONAL, grp.121&nbsp;&nbsp;<span class="cursoCuatr">4&ordm;,1<sup>er</sup>C</span><br><div style="float:none;clear:both;border-top: 1px dotted navy; width: 99%"></div>		<div style="font-size: 8pt; font-weight: bold;color: maroon">17:00 a 19:00</div>
+<div class="fechasSesion"><span class="fechas">05.sep-24.oct:</span><span class="aulas">Aula 7.1.J02</span><br><span class="fechas">07.nov-12.dic:</span><span class="aulas">Aula 7.1.J02</span><br></div>	</td>
+	<td rowspan="8" class="celdaConSesion tipoAsignaturaO limitrofeDia"><div style="text-align: center; font-size: 8pt; font-weight: bold; color: #777777; background-color: #ffffff; border: 1px dotted black">MAGISTRAL</div><div class="estudioGrupo"> </div><div class="asignaturaGrupo">18282-PROCESOS ESTOCÁSTICOS, grp.121&nbsp;&nbsp;<span class="cursoCuatr">4&ordm;,1<sup>er</sup>C</span><br><div style="float:none;clear:both;border-top: 1px dotted navy; width: 99%"></div>		<div style="font-size: 8pt; font-weight: bold;color: maroon">17:00 a 19:00</div>
+<div class="fechasSesion"><span class="fechas">06.sep-04.oct:</span><span class="aulas">Aula 7.1.J02</span><br><span class="fechas">18.oct-25.oct:</span><span class="aulas">Aula 7.1.J02</span><br><span class="fechas">08.nov-29.nov:</span><span class="aulas">Aula 7.1.J02</span><br><span class="fechas">13.dic:</span><span class="aulas">Aula 7.1.J02</span><br></div>	</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td rowspan="8" class="celdaConSesion tipoAsignaturaO limitrofeDia"><div class="estudioGrupo"> </div><div class="asignaturaGrupo">18282-PROCESOS ESTOCÁSTICOS, grp.121&nbsp;&nbsp;<span class="cursoCuatr">4&ordm;,1<sup>er</sup>C</span><br><div style="float:none;clear:both;border-top: 1px dotted navy; width: 99%"></div>		<div style="font-size: 8pt; font-weight: bold;color: maroon">17:00 a 19:00</div>
+<div class="fechasSesion"><span class="fechas">08.sep-01.dic:</span><span class="aulas">Aula 7.1.J08</span><br></div>	</td>
+	<td rowspan="8" class="celdaConSesion tipoAsignaturaO limitrofeDia"><div class="estudioGrupo"> </div><div class="asignaturaGrupo">18283-PROGRAMACIÓN FUNCIONAL, grp.121&nbsp;&nbsp;<span class="cursoCuatr">4&ordm;,1<sup>er</sup>C</span><br><div style="float:none;clear:both;border-top: 1px dotted navy; width: 99%"></div>		<div style="font-size: 8pt; font-weight: bold;color: maroon">17:00 a 19:00</div>
+<div class="fechasSesion"><span class="fechas">09.sep-02.dic:</span><span class="aulas">Aula 7.1.J04</span><br></div>	</td>
+	<td class="limitrofeDia">&nbsp;</td>
+</tr>
+<tr>
+		<th class="cabeceraHora">17<sup>15</sup></th>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+</tr>
+<tr>
+		<th class="cabeceraHora">17<sup>30</sup></th>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+</tr>
+<tr>
+		<th class="cabeceraHora">17<sup>45</sup></th>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+</tr>
+<tr>
+		<th class="cabeceraHora">18<sup>00</sup></th>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+</tr>
+<tr>
+		<th class="cabeceraHora">18<sup>15</sup></th>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+</tr>
+<tr>
+		<th class="cabeceraHora">18<sup>30</sup></th>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+</tr>
+<tr>
+		<th class="cabeceraHora">18<sup>45</sup></th>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+</tr>
+<tr>
+		<th class="cabeceraHora">19<sup>00</sup></th>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td rowspan="8" class="celdaConSesion tipoAsignaturaO limitrofeDia"><div class="estudioGrupo"> </div><div class="asignaturaGrupo">18282-PROCESOS ESTOCÁSTICOS, grp.121&nbsp;&nbsp;<span class="cursoCuatr">4&ordm;,1<sup>er</sup>C</span><br><div style="float:none;clear:both;border-top: 1px dotted navy; width: 99%"></div>		<div style="font-size: 8pt; font-weight: bold;color: maroon">19:00 a 21:00</div>
+<div class="fechasSesion"><span class="fechas">03.nov:</span><span class="aulas">Aula 7.1.J08</span><br><span class="fechas">01.dic:</span><span class="aulas">Aula 7.1.J08</span><br></div>	</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+</tr>
+<tr>
+		<th class="cabeceraHora">19<sup>15</sup></th>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+</tr>
+<tr>
+		<th class="cabeceraHora">19<sup>30</sup></th>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+</tr>
+<tr>
+		<th class="cabeceraHora">19<sup>45</sup></th>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+</tr>
+<tr>
+		<th class="cabeceraHora">20<sup>00</sup></th>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+</tr>
+<tr>
+		<th class="cabeceraHora">20<sup>15</sup></th>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+</tr>
+<tr>
+		<th class="cabeceraHora">20<sup>30</sup></th>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+</tr>
+<tr>
+		<th class="cabeceraHora">20<sup>45</sup></th>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+	<td class="limitrofeDia">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+
+    </div>
+</div>
+
+<!--<footer class="common-footer-adys hidden-xs">
+    <span class="footer"></span>
+</footer>-->
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+</body>
+</html>
