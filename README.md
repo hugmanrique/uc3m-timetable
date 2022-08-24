@@ -14,15 +14,15 @@ https://aplicaciones.uc3m.es/horarios-web/publicacion/{year}/porCentroPlanCursoG
 ```
 Next, fill in the parameters of the following URL and access the site
 ```
-https://uc3m-timetable.hugmanrique.me/?year={year}&plan={plan}&center={center}&grade={grade}&period={period}
+https://uc3m-timetable.hugmanrique.me/?year={year}&plan={plan}&center={center}&grade={grade}&group={group}&period={period}
 ```
-An iCalendar object file (`.ics`) should have been downloaded. To import it in your application, create a new calendar
+An iCalendar object file (`.ics`) should have been downloaded. To import it into your application, create a new calendar
 and see the following guides:
 
 - [Google Calendar](https://support.google.com/calendar/answer/37118) (follow step 2),
 - [Apple Calendar](https://support.apple.com/guide/calendar/import-or-export-calendars-icl1023/mac) (read the "Import events into a calendar" section).
 
-To update the timetable, download the iCalendar file again, recreate the calendar, and import the file.
+To update the timetable, delete the calendar and follow the steps above.
 
 ## Setup
 You'll need the following dependencies to build uc3m-timetable
@@ -49,5 +49,5 @@ wrangler dev --local
 
 [MIT](LICENSE) &copy; [Hugo Manrique](https://hugmanrique.me)
 
-[license]: https://img.shields.io/github/license/hugmanrique/Cartage.svg
+[license]: https://img.shields.io/github/license/hugmanrique/uc3m-timetable.svg
 [license-url]: LICENSE
