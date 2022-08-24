@@ -6,7 +6,7 @@ ready to import into your favorite calendar application.
 ## Usage
 
 First, access the page of the degree you're enrolled in (here's the list of [bachelor degrees](https://www.uc3m.es/bachelor-degree/studies)
-and of [master programs](https://www.uc3m.es/postgraduate/programs)). Expand the "Schedules/Practical information" tab and click
+and that of [master programs](https://www.uc3m.es/postgraduate/programs)). Expand the "Schedules/Practical information" tab and click
 on the "Schedule in bachelor's degree/Master's course schedule" link. Select the current semester and your grade, and check
 that the URL has the form
 ```
@@ -16,7 +16,7 @@ Next, fill in the parameters of the following URL and access the site
 ```
 https://uc3m-timetable.hugmanrique.me/?year={year}&plan={plan}&center={center}&grade={grade}&period={period}
 ```
-An iCalendar object file (`.ics`) should have been downloading. To import it in your application, create a new calendar
+An iCalendar object file (`.ics`) should have been downloaded. To import it in your application, create a new calendar
 and see the following guides:
 
 - [Google Calendar](https://support.google.com/calendar/answer/37118) -- step 2,
